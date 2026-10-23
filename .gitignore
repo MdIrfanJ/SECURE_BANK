@@ -1,0 +1,14 @@
+
+# Compiled Java files
+*.class
+
+# VS Code workspace settings
+.vscode/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local configuration files
+config.properties
