@@ -1,72 +1,32 @@
 import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         AccountDAO dao = new AccountDAO();
         BankOperations bank = new BankOperations();
         TransactionDAO transactionDAO = new TransactionDAO();
+
         while (true) {
-            System.out.println("\n===== SECUREBANK =====");
-            System.out.println("1. Login");
-            System.out.println("2. Open New Account");
-            System.out.println("3. Exit");
+            System.out.println("\n===== SMART BANK MANAGEMENT SYSTEM =====");
+            System.out.println("1. Customer Login");
+            System.out.println("2. Admin Login");
+            System.out.println("3. Open New Account");
+            System.out.println("4. Exit");
             System.out.print("Enter your choice: ");
+
             if (!sc.hasNextInt()) {
                 System.out.println("Invalid input. Please enter a number.");
                 sc.nextLine();
                 continue;
             }
+
             int option = sc.nextInt();
             sc.nextLine();
-            if (option == 2) {
+
+            if (option == 1) {
                 System.out.print("Enter account number: ");
-                if (!sc.hasNextInt()) {
-                    System.out.println("Invalid account number.");
-                    sc.nextLine();
-                    continue;
-                }
-                int newAccountNo = sc.nextInt();
-                sc.nextLine();
 
-                if (newAccountNo <= 0) {
-                    System.out.println("Account number must be positive.");
-                    continue;
-                }
-                System.out.print("Enter account holder name: ");
-                String holderName = sc.nextLine().trim();
-
-                System.out.print("Enter account type (SAVINGS/CURRENT): ");
-                String accountType = sc.nextLine().trim().toUpperCase();
-                if (!accountType.equals("SAVINGS") && !accountType.equals("CURRENT")) {
-                    System.out.println("Invalid account type.");
-                    continue;
-                }
-                System.out.print("Enter initial deposit: ");
-                if (!sc.hasNextDouble()) {
-                    System.out.println("Invalid deposit. Please enter a number.");
-                    sc.nextLine();
-                    continue;
-                }
-                double balance = sc.nextDouble();
-                sc.nextLine();
-                if (!Double.isFinite(balance) || balance < 0
-                        || (accountType.equals("SAVINGS") && balance < 1000)) {
-                    System.out.println("Invalid initial deposit. Savings accounts require at least Rs.1000.");
-                    continue;
-                }
-                System.out.print("Create a PIN (4-12 digits): ");
-                String newPin = sc.nextLine();
-                boolean created = dao.createAccount(
-                        newAccountNo, holderName, accountType, balance, newPin);
-                if (created) {
-                    System.out.println("Account created successfully!");
-                    System.out.println("Your account number is: " + newAccountNo);
-                } else {
-                    System.out.println("Account creation unsuccessful. Please check the error above.");
-                }
-
-            } else if (option == 1) {
-                System.out.print("Enter account number: ");
                 if (!sc.hasNextInt()) {
                     System.out.println("Invalid account number.");
                     sc.nextLine();
@@ -90,18 +50,23 @@ public class Main {
                 }
 
                 System.out.println("\nLogin successful!");
-                System.out.println("Welcome to SecureBank!");
+                System.out.println("Welcome to Smart Bank Management System!");
 
                 int choice = 0;
+
                 do {
+                    if (!bank.isAccountActive(accountNo)) {
+                        System.out.println("\nYour account has been locked or is unavailable.");
+                        System.out.println("You have been logged out.");
+                        break;
+                    }
                     System.out.println("\n===== BANKING MENU =====");
                     System.out.println("1. Check Balance");
                     System.out.println("2. Deposit");
                     System.out.println("3. Withdraw");
                     System.out.println("4. Transfer");
                     System.out.println("5. Transaction History");
-                    System.out.println("6. Add Yearly Savings Interest");
-                    System.out.println("7. Logout");
+                    System.out.println("6. Logout");
                     System.out.print("Enter your choice: ");
 
                     if (!sc.hasNextInt()) {
@@ -112,6 +77,11 @@ public class Main {
 
                     choice = sc.nextInt();
                     sc.nextLine();
+                    if (!bank.isAccountActive(accountNo)) {
+                    System.out.println("\nYour account has been locked or is unavailable.");
+                    System.out.println("You have been logged out.");
+                    break;
+                    }
 
                     switch (choice) {
                         case 1:
@@ -120,33 +90,41 @@ public class Main {
 
                         case 2:
                             System.out.print("Enter deposit amount: ");
+
                             if (!sc.hasNextDouble()) {
                                 System.out.println("Invalid amount.");
                                 sc.nextLine();
                                 break;
                             }
+
                             double depositAmount = sc.nextDouble();
                             sc.nextLine();
+
                             if (!Double.isFinite(depositAmount) || depositAmount <= 0) {
                                 System.out.println("Amount must be greater than zero.");
                                 break;
                             }
+
                             bank.deposit(accountNo, depositAmount);
                             break;
 
                         case 3:
                             System.out.print("Enter withdrawal amount: ");
+
                             if (!sc.hasNextDouble()) {
                                 System.out.println("Invalid amount.");
                                 sc.nextLine();
                                 break;
                             }
+
                             double withdrawAmount = sc.nextDouble();
                             sc.nextLine();
+
                             if (!Double.isFinite(withdrawAmount) || withdrawAmount <= 0) {
                                 System.out.println("Amount must be greater than zero.");
                                 break;
                             }
+
                             try {
                                 bank.withdraw(accountNo, withdrawAmount);
                             } catch (InsufficientFundsException e) {
@@ -156,6 +134,7 @@ public class Main {
 
                         case 4:
                             System.out.print("Enter receiver account number: ");
+
                             if (!sc.hasNextInt()) {
                                 System.out.println("Invalid receiver account number.");
                                 sc.nextLine();
@@ -171,6 +150,7 @@ public class Main {
                             }
 
                             System.out.print("Enter transfer amount: ");
+
                             if (!sc.hasNextDouble()) {
                                 System.out.println("Invalid transfer amount.");
                                 sc.nextLine();
@@ -197,26 +177,203 @@ public class Main {
                             break;
 
                         case 6:
-                            bank.addYearlyInterest(accountNo);
-                            break;
-
-                        case 7:
                             System.out.println("Logged out successfully.");
                             break;
 
                         default:
                             System.out.println("Invalid choice. Please try again.");
                     }
-                } while (choice != 7);
+                } while (choice != 6);
+
+            } else if (option == 2) {
+                System.out.println("\n===== ADMIN LOGIN =====");
+                System.out.print("Enter admin username: ");
+                String username = sc.nextLine();
+
+                System.out.print("Enter admin password: ");
+                String password = sc.nextLine();
+
+                String role = AdminDAO.login(username, password);
+
+                if (role == null) {
+                    System.out.println("Invalid username or password.");
+                    continue;
+                }
+
+                System.out.println("\nAdmin login successful!");
+                System.out.println("Welcome, " + username + "!");
+                adminMenu(sc, role, bank);
 
             } else if (option == 3) {
-                System.out.println("Thank you for using SecureBank!");
+                System.out.print("Enter account number: ");
+
+                if (!sc.hasNextInt()) {
+                    System.out.println("Invalid account number.");
+                    sc.nextLine();
+                    continue;
+                }
+
+                int newAccountNo = sc.nextInt();
+                sc.nextLine();
+
+                if (newAccountNo <= 0) {
+                    System.out.println("Account number must be positive.");
+                    continue;
+                }
+
+                System.out.print("Enter account holder name: ");
+                String holderName = sc.nextLine().trim();
+
+                System.out.print("Enter account type (SAVINGS/CURRENT): ");
+                String accountType = sc.nextLine().trim().toUpperCase();
+
+                if (!accountType.equals("SAVINGS") && !accountType.equals("CURRENT")) {
+                    System.out.println("Invalid account type.");
+                    continue;
+                }
+
+                System.out.print("Enter initial deposit: ");
+
+                if (!sc.hasNextDouble()) {
+                    System.out.println("Invalid deposit. Please enter a number.");
+                    sc.nextLine();
+                    continue;
+                }
+
+                double balance = sc.nextDouble();
+                sc.nextLine();
+
+                if (!Double.isFinite(balance) || balance < 0
+                        || (accountType.equals("SAVINGS") && balance < 1000)) {
+                    System.out.println("Invalid initial deposit. Savings accounts require at least Rs.1000.");
+                    continue;
+                }
+
+                System.out.print("Create a PIN (4-12 digits): ");
+                String newPin = sc.nextLine();
+
+                boolean created = dao.createAccount(
+                        newAccountNo, holderName, accountType, balance, newPin);
+
+                if (created) {
+                    System.out.println("Account created successfully!");
+                    System.out.println("Your account number is: " + newAccountNo);
+                } else {
+                    System.out.println("Account creation unsuccessful. Please check the error above.");
+                }
+
+            } else if (option == 4) {
+                System.out.println("Thank you for using Smart Bank Management System!");
                 break;
+
             } else {
                 System.out.println("Invalid choice. Please try again.");
             }
         }
 
         sc.close();
+    }
+
+    public static void adminMenu(Scanner sc, String role, BankOperations bank) {
+        int choice = 0;
+
+        do {
+            System.out.println("\n===== ADMIN DASHBOARD =====");
+            System.out.println("Logged in as: " + role);
+            System.out.println("1. View All Customer Accounts");
+            System.out.println("2. Search Customer Account");
+
+            if (role.equals("SUPER_ADMIN") || role.equals("ACCOUNT_MANAGER")) {
+                System.out.println("3. Lock/Unlock Customer Account");
+            }
+
+            if (role.equals("SUPER_ADMIN")) {
+                System.out.println("4. Create New Admin");
+                System.out.println("5. Remove Admin");
+                System.out.println("6. View All Admins");
+                System.out.println("7. Add Yearly Savings Interest");
+            }
+
+            System.out.println("8. Logout");
+            System.out.print("Enter your choice: ");
+
+            if (!sc.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number.");
+                sc.nextLine();
+                continue;
+            }
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+                case 1:
+                    AdminOperations.viewAllAccounts();
+                    break;
+
+                case 2:
+                    AdminOperations.searchAccount(sc);
+                    break;
+
+                case 3:
+                    if (role.equals("SUPER_ADMIN") || role.equals("ACCOUNT_MANAGER")) {
+                        AdminOperations.changeAccountStatus(sc);
+                    } else {
+                        System.out.println("Permission denied.");
+                    }
+                    break;
+
+                case 4:
+                    if (role.equals("SUPER_ADMIN")) {
+                        AdminOperations.createAdmin(sc);
+                    } else {
+                        System.out.println("Permission denied.");
+                    }
+                    break;
+
+                case 5:
+                    if (role.equals("SUPER_ADMIN")) {
+                        AdminOperations.removeAdmin(sc);
+                    } else {
+                        System.out.println("Permission denied.");
+                    }
+                    break;
+
+                case 6:
+                    if (role.equals("SUPER_ADMIN")) {
+                        AdminOperations.viewAllAdmins();
+                    } else {
+                        System.out.println("Permission denied.");
+                    }
+                    break;
+
+                case 7:
+                    if (role.equals("SUPER_ADMIN")) {
+                        System.out.print("Enter Savings account number: ");
+
+                        if (!sc.hasNextInt()) {
+                            System.out.println("Invalid account number.");
+                            sc.nextLine();
+                            break;
+                        }
+
+                        int accountNo = sc.nextInt();
+                        sc.nextLine();
+
+                        bank.addYearlyInterest(accountNo);
+                    } else {
+                        System.out.println("Permission denied.");
+                    }
+                    break;
+
+                case 8:
+                    System.out.println("Admin logged out successfully.");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+
+        } while (choice != 8);
     }
 }

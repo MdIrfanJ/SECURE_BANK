@@ -1,18 +1,20 @@
-# SecureBank — Java Banking Management System
+# Smart Bank Management System
 
-SecureBank is a console-based banking application developed using Java and MySQL. It demonstrates object-oriented programming, database connectivity, transaction management, and basic account security.
+A console-based banking application developed using **Java and MySQL**. The project demonstrates object-oriented programming, database connectivity using JDBC, transaction management, and secure PIN authentication.
 
 ## Features
 
-- **PIN Authentication:** Verify account PINs before login.
-- **Account Locking:** Lock accounts after three incorrect PIN attempts.
+- **PIN Authentication:** Verify account PINs before allowing access.
+- **Secure PIN Hashing:** Store PINs as hashes using `PBKDF2WithHmacSHA256` with a random salt instead of storing plain-text PINs.
+- **Account Locking:** Lock accounts after three incorrect valid-format PIN attempts.
 - **Balance Inquiry:** View account details and current balance.
-- **Deposit and Withdrawal:** Perform transactions with validation.
+- **Deposit and Withdrawal:** Perform banking transactions with validation.
 - **Fund Transfer:** Transfer money between bank accounts.
 - **Transaction History:** Display the latest five transactions.
-- **Savings Interest:** Calculate and add 4% interest to savings accounts.
+- **Savings Interest:** Apply 4% yearly interest through a manual Super Admin operation.
 - **Account Rules:** Maintain a minimum savings balance of ₹1,000 and enforce a current-account overdraft limit of ₹5,000.
 - **Exception Handling:** Use a custom `InsufficientFundsException`.
+- **Admin Management:** Support administrative roles such as Super Admin, Account Manager, and Auditor.
 
 ## Technologies Used
 
@@ -25,46 +27,74 @@ SecureBank is a console-based banking application developed using Java and MySQL
 
 ## Object-Oriented Programming Concepts
 
-- **Abstraction:** Abstract `Account` class.
-- **Inheritance:** `SavingsAccount` and `CurrentAccount` extend `Account`.
-- **Method Overriding:** Account types implement their specific account rules.
-- **Polymorphism:** Account behavior can be represented through the parent class.
-- **Encapsulation:** Account data and operations are organized into classes.
+- **Abstraction:** Use an abstract `Account` class to define common account features.
+- **Inheritance:** `SavingsAccount` and `CurrentAccount` extend the `Account` class.
+- **Method Overriding:** Account types provide their own specific account rules.
+- **Polymorphism:** Account objects can be handled through their common parent class.
+- **Encapsulation:** Account data and operations are organized within classes.
 
 ## Database
 
 The application uses a MySQL database named `securebank`.
 
-The database includes:
-- `accounts` — stores account details, balances, and authentication status.
-- `transactions` — stores deposits, withdrawals, transfers, and interest entries.
+The database contains three main tables:
 
-Create the database and tables using your project's SQL setup script before running the application.
+- **`accounts`** — Stores account details, balances, PIN hashes, account-lock status, and failed login attempts.
+- **`transactions`** — Stores transaction records, including transaction type, amount, and transaction time.
+- **`admins`** — Stores administrator details, password hashes, and assigned roles.
+
+### Admin Roles
+
+- `SUPER_ADMIN`
+- `ACCOUNT_MANAGER`
+- `AUDITOR`
+
+## Security Features
+
+- PINs are stored using `PBKDF2WithHmacSHA256` hashing with a random salt.
+- The original PIN is not stored in the database.
+- Accounts are locked after three incorrect valid-format PIN attempts.
+- JDBC `PreparedStatement` is used for parameterized SQL operations.
 
 ## How to Run
 
 ### 1. Prerequisites
-Install Java JDK and MySQL. Ensure the MySQL Connector/J JAR is available in the project's `lib` folder.
+
+Install the following:
+
+- Java JDK
+- MySQL Server
+- MySQL Workbench
+- MySQL Connector/J
+
+Ensure the MySQL Connector/J JAR file is available in the project's `lib` folder.
 
 ### 2. Configure the Database
-Configure your MySQL connection in `DBConnection.java`. Keep passwords out of public source code; use environment variables or a local configuration file that is excluded from Git.
+
+- Create the `securebank` database.
+- Create the required tables using the project's SQL setup.
+- Configure the database connection details in `DBConnection.java`.
+- Keep database passwords out of public source code. Use environment variables or a local configuration file excluded from Git.
 
 ### 3. Compile
+
 Open a terminal in the project directory and run:
 
 ```powershell
-javac -cp ".;lib\*" *.java
+javac -cp ".;lib/*" *.java
 ```
 
 ### 4. Run
+
 Execute:
 
 ```powershell
-java -cp ".;lib\*" Main
+java -cp ".;lib/*" Main
 ```
 
 ### 5. Use the Application
-Log in with an account number and PIN, then select an option from the banking menu.
+
+Log in using an account number and PIN. After successful authentication, select the required operation from the banking menu.
 
 ## Project Structure
 
@@ -86,8 +116,23 @@ Java/
 
 ## Important Note
 
-This is an educational project demonstrating Java, JDBC, and MySQL concepts. The yearly interest option applies interest whenever selected; it does not automatically track annual interest periods. This application is not intended for real banking use.
+This is an educational project developed to demonstrate Java, JDBC, MySQL, object-oriented programming, and basic banking security concepts.
 
-## Author
+The 4% yearly interest operation is triggered manually by a Super Admin. It does not run automatically on a yearly schedule or maintain duplicate annual-interest records.
 
-Developed as a Java and MySQL learning project.
+This application is not intended for real-world banking use.
+
+## Project Team
+
+This project was collaboratively developed by:
+
+1. **Mohamed Irfan J**
+2. **Mohammed Reabai J**
+3. **Muralikarthick V**
+4. **Devanathan C S**
+
+---
+
+**Project:** Smart Bank Management System  
+**Domain:** Java Application Development and Database Management  
+**Technologies:** Java, MySQL and JDBC
