@@ -128,7 +128,7 @@ This project was collaboratively developed by:
 
 1. **Mohamed Irfan J**
 2. **Mohammed Reabai J**
-3. **Muralikarthick V**
+3. **Muralikarthik V**
 4. **Devanathan C S**
 
 ---
